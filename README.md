@@ -428,6 +428,26 @@ class Solution {
 }
 ```
 
+11. https://leetcode.com/problems/single-number/ - решить за O(1) по памяти
+
+    Супер не очевидная и не интуитивная задачка!
+
+    Given a non-empty array of integers nums, every element appears twice except for one. Find that single one
+
+    Решается xor'ом. Пройдясь исключающем-или по всему массиву в итоге останется только то число, что не было повторено, тк 101 xor 101 = 000
+
+```
+class Solution {
+    fun singleNumber(nums: IntArray): Int {
+        var ans = 0
+        nums.forEach { num ->
+            ans = ans.xor(num)
+        }
+        return ans
+    }
+}
+```
+
 (2sum)
 12. https://leetcode.com/problems/two-sum/   EASY
 
