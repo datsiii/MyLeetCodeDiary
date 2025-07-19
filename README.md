@@ -431,7 +431,9 @@ class Solution {
 (2sum)
 12. https://leetcode.com/problems/two-sum/   EASY
 
-Супер задачка! Дан массив и заданное число - сумма. В массиве нам нужна
+Супер задачка! Дан массив и заданное число - сумма. В массиве нам нужно найти два числа, которые при сложении дают нужную нам сумму. 
+
+Что делаем? Ну, я завела хэшмапу (map.containsKey есть такое, реализацию кажется можно улучшить). В чем идея? В хэшмапе мы храним число и его позицию, почему хэшмапа? Операция проверки нахождения в хэшмапе выполняется очень быстро. Потом проходимся по массиву чисел, и поскольку у нас всего два числа, то мы четко знаем, какое второе число нам нужно (m = target - n), его и ищем в хэшмапе.
 
 ```
 class Solution {
@@ -448,8 +450,382 @@ class Solution {
 }
 ```
 
+(3 sum)
+https://leetcode.com/problems/3sum/
+ 
+ А вот уже вариант посложнее: нужно найти три числа nums[i] + nums[j] + nums[k] == 0. Но тут нам уже не нужны в ответе индексы, а только конкретно три числа. Хэшмапа нам тут, увы, не поможет(
+ 
+ Что делаем? Первым делом, сортируем. Зачем? А чтобы вторым делом, двигаться двумя указателями (лево и право). Тут нам важно пропускать дубликаты, а чтобы оптимизировать код, определить условия раннего выхода.
+     
+Шаги:
+
+Фиксируем первый элемент (индекс i): Для каждого элемента nums[i] ищем пару элементов (l, r) такую, что nums[i] + nums[l] + nums[r] = 0. Эквивалентно: ищем nums[l] + nums[r] = -nums[i].
+     
+Пропускаем дубликаты для i: если текущий совпадает с предыдущим, пропускаем его. (чтоб не было дублирующихся троек)
+
+Два указателя (для каждого i): l = i + 1 (сразу после i), r = конец массива
+
+Если мы нашли нужную тройку, то сразу
+Пропускаем дубликаты слева (while (l < r && nums[l] == nums[l+1]) l++).
+Пропускаем дубликаты справа (while (l < r && nums[r] == nums[r-1]) r--).
+И сдвигаем оба указателя (l++, r--).
+
+Если не нашли, но понимаем, что сумма меньше цели: сдвигаем l вправо (увеличиваем сумму).
+А иначе сдвигаем r влево (уменьшаем сумму).
+
+Оптимизация: если nums[i] > 0, сразу выходим — дальше все числа положительные, сумма 0 невозможна.
+```
+class Solution {
+    fun threeSum(nums: IntArray): List<List<Int>> {
+        val n = nums.size - 1
+        val res = mutableListOf<List<Int>>()
+        nums.sort()
+        for (i in 0..n-1) {
+            val target = -nums[i]
+            var l = i + 1
+            var r = n
+            if (i > 0 && nums[i]==nums[i-1]) continue
+            while (l < r) {
+                if (nums[l] + nums[r] == target) {
+                    res.add(listOf(nums[i], nums[l], nums[r]))
+                    while (l < r && nums[l] == nums[l+1]) l++
+                    while (l < r && nums[r] == nums[r-1]) r--
+                    l++
+                    r--
+                } else if (nums[l] + nums[r] < target) {
+                    l++
+                } else {
+                    r--
+                }
+            }
+        }
+        return res
+    }
+}
+```
+(4sum)
+13. https://leetcode.com/problems/4sum/
+
+Теперь задача еще сложнее..нужны 4 числа! И числа могут быть большими, использовала .toLong() для избежания переполнения.
+
+Идея похожа, тоже два указателя (для этого сортируем)
+
+Два вложенных цикла для фиксации первых двух чисел: внешний цикл по i (от 0 до n-4), внутренний цикл по j (от i+1 до n-3) + оптимизация: пропуск дубликатов continue
+
+Оптимизации перед использованием двух указателей: ранний выход если минимальная возможная сумма (nums[i] + nums[j] + nums[j+1] + nums[j+2]) больше заданной и если максимальная возможная сумма (nums[i] + nums[j] + nums[n-2] + nums[n-1]) меньше заданной
+
+Два указателя для поиска оставшихся двух чисел: l = j+1, r = n-1 (лево и право)
+
+Если нашли нужную сумму, пропускаем дубликаты и сдвигаем указатели: l++, r--, если сумма меньше нужной, сдвигаем l вправо (увеличиваем сумму). А иначе сдвигаем r влево (уменьшаем сумму).
+
+```
+class Solution {
+    fun fourSum(nums: IntArray, target: Int): List<List<Int>> {
+        val n = nums.size
+        val res = mutableListOf<List<Int>>()
+        nums.sort()
+        for (i in 0 until n-3) {
+            if (i > 0 && nums[i] == nums[i - 1]) continue
+            for (j in i+1 until n-2) {
+                if (j > i + 1 && nums[j] == nums[j - 1]) continue
+                if (nums[i].toLong() + nums[j].toLong() + nums[j+1].toLong() + nums[j+2].toLong() > target.toLong()) break
+                if (nums[i].toLong() + nums[j].toLong() + nums[n-2].toLong() + nums[n-1].toLong() < target.toLong()) continue
+                var l = j + 1
+                var r = n - 1
+                while (l < r) {
+                    val sum = nums[i].toLong() + nums[j].toLong() + nums[l].toLong() + nums[r].toLong()
+                    if (sum == target.toLong()) {
+                        res.add(listOf(nums[i], nums[j], nums[l], nums[r]))
+                        while (l < r && nums[l] == nums[l+1]) l++
+                        while (l < r && nums[r] == nums[r-1]) r--
+                        l++
+                        r--
+                    }
+                    else if (sum < target.toLong()) l++
+                    else r--
+                }
+            }
+        }
+        return res
+    }
+}
+```
+
+14. https://leetcode.com/problems/group-anagrams/   MEDIUM
+
+    Группируем аннограмы: An anagram is a word or phrase formed by rearranging the letters of a different word or phrase, using all the original letters exactly once.
+
+    Моя идея: делаем хэшмапу, где ключ - это строка, а значение - анаграммы этой строки. Для этого для каждой строки делаем ее новый вид - превращаем в массив char и сортируем, если наш новый вид уже есть в хэшмапе - добавляем к анаграммам старый вид
+    
+```
+class Solution {
+    fun groupAnagrams(strs: Array<String>): List<List<String>> {
+        val hmap = HashMap<String, MutableList<String>>()
+        strs.forEach { s ->
+            val newS = s.toCharArray().sortedArray().joinToString("")
+            if (newS !in hmap) hmap[newS] = mutableListOf(s)
+            else hmap[newS]?.add(s)
+        }
+        return hmap.values.toList()
+    }
+}
+```
+
+15. https://leetcode.com/problems/valid-anagram/   EASY
+
+    Проверяем две строки на анаграммность.
+
+    Самое простое решение! Но долгое...
+    
+```
+class Solution {
+    fun isAnagram(s: String, t: String): Boolean {
+        return if(s.toCharArray().sorted().joinToString() == t.toCharArray().sorted().joinToString()) true else false
+    }
+}
+```
+А вот решение быстрое. Не забудем проверочку на длину. Из условий задачи нам известно, что строки состоят только из маленьких букв английского алфавита, для каждой буковки мы можем завести счетчик в массиве. Проходимся по строчке (любой, длина же равна после проверки) и для встречи буковки в первой строки будет увеличивать счетчик (индекс высчитываем по таблице char'ов), а при встрече во второй, наоборот уменьшаем счетчик.
+
+Если строки анаграммы - у каждой буковки счетчик должен быть 0!
+```
+class Solution {
+    fun isAnagram(s: String, t: String): Boolean {
+       if (s.length != t.length) {
+            return false
+        }
+        val count = IntArray(26)
+        for (i in s.indices) {
+            count[s[i] - 'a']++
+            count[t[i] - 'a']--
+        }
+        
+        count.forEach { cnt ->
+            if (cnt != 0) return false
+        }
+        return true
+    }
+}
+```
+16. https://leetcode.com/problems/find-all-anagrams-in-a-string/   MEDIUM
+
+    Given two strings s and p, return an array of all the start indices of p's anagrams in s. You may return the answer in any order.
+
+    Что делаем? Делаем скользящее окно!
+    
+    Массивы частот:
+    
+    countP — массив из 26 нулей, хранит частоты символов в p.
+    
+    countW — аналогично для текущего окна в s.
+
+    Инициализация частот: заполняем countP по строке p, заполняем countW по первому окну s[0..p.length-1].
+
+    Если частоты равны → добавляем p1
+
+    Уменьшаем частоту s[p1] (уходит из окна), сдвигаем p1 и p2 вправо и увеличиваем частоту s[p2] (если p2 не вышел за границы).
+
+
+```
+class Solution {
+    fun findAnagrams(s: String, p: String): List<Int> {
+        if (p.length > s.length) return emptyList()
+        var p1 = 0
+        var p2 = p.length - 1
+        val res = mutableListOf<Int>()
+        var window = s.slice(p1..p2)
+        val countP = IntArray(26)
+        val countW = IntArray(26)
+        for(i in p.indices) {
+            countP[p[i] - 'a']++ 
+        }
+        for(i in window.indices) {
+            countW[window[i] - 'a']++ 
+        }
+        while (p2 < s.length) {
+            if (countP contentEquals countW) res.add(p1)
+            countW[s[p1] - 'a']--
+            p1++
+            p2++
+            if (p2 < s.length) countW[s[p2] - 'a']++
+        }
+        return res
+    }
+}
+```
+
+17. https://leetcode.com/problems/valid-parentheses/   EASY
+
+    А вот еще одна задачка на валидность, валдиность скобочек. Ну тут идея проста, делаем кучу, в которую кладем открывающиеся скобочки, а как только нашли закрывающуюся - сравниваем с последней скобочкой в куче, чтоб совпадали по типу.
+
+    Не забудем про краевые случаи, когда у нас могут быть только закрывающиеся скобочки, или куча не пуста - не все скобочки были закрыты
+
+```
+class Solution {
+    fun isValid(s: String): Boolean {
+        if (s.length == 1) return false
+        val characters = Stack<Char>()
+        s.forEach { ch ->
+            if ((ch == '(') or (ch == '{') or (ch == '[')) characters.push(ch)
+            else if (characters.isNotEmpty()) {
+                val lastCh = characters.peek()
+                when {
+                    (ch == ')')  &&  (lastCh != '(') -> return false
+                    (ch == '}')  &&  (lastCh != '{') -> return false
+                    (ch == ']')  &&  (lastCh != '[') -> return false
+                }
+                characters.pop()
+            }
+            else return false
+        }
+        return if (characters.isNotEmpty()) false else true
+    }
+}
+```
+
+18. https://leetcode.com/problems/number-of-islands/   MEDIUM
+
+   Задачечка на обход матрицы dfs'ом, выглядит страшно, как задачки на шахматы, но на самом деле все оки.
+
+   В dfs'е если мы видем не 1, то выходим из рекурсии, а если 1, то помечаем увиденную единичку (можно 0 типа затопили, но я решила 3). Дальше вызываем рекурсию для всех соседних клеток, кроме диагональных.
+
+   А вызываем мы dfs в цикле по матрице, как только находим там 1 (увеличиваем счетчик островов).
+
+```
+class Solution {
+    fun numIslands(grid: Array<CharArray>): Int {
+        val m = grid.size - 1
+        val n = grid[0].size - 1
+        var count = 0
+
+        fun dfs(i: Int, j: Int, grid: Array<CharArray>) {
+            if ((i !in 0..m) or (j !in 0..n)) return
+            if (grid[i][j] != '1') return
+            if (grid[i][j] == '1') grid[i][j] = '3'
+
+            dfs(i+1, j, grid)
+            dfs(i, j+1, grid)
+            dfs(i-1, j, grid)
+            dfs(i, j-1, grid)
+        }
+
+        for (i in 0..m) {
+            for (j in 0..n) {
+                if (grid[i][j] == '1') {
+                    count++
+                    dfs(i, j, grid)
+                }
+            }
+        }
+        return count
+    }
+}
+```
+
+19. https://leetcode.com/problems/remove-invalid-parentheses/    HARD
+
+    И опять задачка на скобочки. Только тут нужно неправильные скобочки убрать.
+
+    Идея: используем BFS для поиска минимального числа удалений. Каждый уровень BFS — удаление одной скобки.
+
+    Шаги:
+
+    Проверка уровня: для каждой строки в текущей очереди:
+
+    Если строка валидна → добавляем в результат и помечаем found=true (флаг уровня, то есть на уровень ниже спускаться не надо для минимальности удалений).
+
+    Если found=false → генерируем новые строки удалением каждой скобки и добавляем в очередь (если не посещена).
+
+    Ранний выход: Если на уровне нашли валидные строки → возвращаем результат.
+
+    Проверка валидности: Счётчик баланса (открывающие +1, закрывающие -1). Как уже проверяли в первой задачке на скобки.
+
+    (Сложность: Экспоненциальная в худшем случае, но оптимизирована посещёнными строками)
+
+```
+class Solution {
+    fun removeInvalidParentheses(s: String): List<String> {
+        val res = mutableListOf<String>()
+        val queue: Queue<String> = LinkedList<String>()
+        queue.add(s)
+        val visited = HashSet<String>()
+
+        fun isValid(s: String): Boolean{
+            var count = 0 
+            s.forEach { ch ->
+                when (ch) {
+                    '(' -> count++
+                    ')' -> count--
+                }
+                if (count < 0) return false
+            }
+            return count == 0
+        }
+
+        fun bfs(queue: Queue<String>): List<String> {
+            while (queue.isNotEmpty()) {
+                var found = false
+                val size = queue.size
+                for (i in 0 until size) {
+                    val str = queue.poll()
+                    if (isValid(str)) {
+                        res.add(str)
+                        found = true
+                    }
+                    if(!found) {
+                        for (j in str.indices) {
+                            if (str[j] in "()") {
+                                val newStr = str.removeRange(j, j+1)
+                                if (newStr !in visited) {
+                                    visited.add(newStr)
+                                    queue.add(newStr)
+                                }
+                            }
+                        }
+                    }
+                }
+                if (found) return res.toList()
+            }
+            return emptyList()
+        }
+        return bfs(queue)
+    }
+}
+```
+
+20. https://leetcode.com/problems/merge-intervals/   MEDIUM
+
+    Задачка на соединение интервалов, важно ее запомнить, она используеются в других задачках (не самым очевидным образом).
+
+    Ну, у нас есть два указателя - начало и конец текущего интервала. Если начало нового интервала меньше, чем конец текущего - то эти интервалы можно объединить. А иначе мы нашли конец интервала и делаем новые текущий интервал. **ВАЖНО!!! ОЧЕНЬ ВАЖНО!!** В конце после цикла обязательно добавить к результату интервал текущий, тк мы не добавили его в цикле из-за проверки!!!
+    
+```
+class Solution {
+    fun merge(intervals: Array<IntArray>): Array<IntArray> {
+        val res = mutableListOf<IntArray>()
+        intervals.sortBy { it[0] }
+        var curStart = intervals[0][0]
+        var curEnd = intervals[0][1]
+        for (i in 0..intervals.size-1) {
+            if (intervals[i][0] <= curEnd) {
+                curEnd = max(curEnd, intervals[i][1])
+            } else {
+                res.add(intArrayOf(curStart, curEnd))
+                curStart = intervals[i][0]
+                curEnd = intervals[i][1]
+            }
+        }
+        res.add(intArrayOf(curStart, curEnd))
+        return res.toTypedArray()
+    }
+}
+```
+
+
+
 
 ## Когда-то решенные мною задачки
+
+Тут возможны повторения с задачками выше
 
 ```
 class Solution {
