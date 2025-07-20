@@ -628,7 +628,7 @@ class Solution {
 ```
 16. https://leetcode.com/problems/find-all-anagrams-in-a-string/   MEDIUM
 
-    Given two strings s and p, return an array of all the start indices of p's anagrams in s. You may return the answer in any order.
+        Given two strings s and p, return an array of all the start indices of p's anagrams in s. You may return the answer in any order.
 
     Что делаем? Делаем скользящее окно!
     
@@ -844,8 +844,8 @@ https://leetcode.com/problems/find-the-maximum-length-of-valid-subsequence-i/des
 
 Доп задачка, не из списка ичара, но пусть будет тут
 
-You are given an integer array nums.
-A subsequence sub of nums with length x is called valid if it satisfies:
+    You are given an integer array nums.
+    A subsequence sub of nums with length x is called valid if it satisfies:
 
 (sub[0] + sub[1]) % 2 == (sub[1] + sub[2]) % 2 == ... == (sub[x - 2] + sub[x - 1]) % 2.
 Return the length of the longest valid subsequence of nums.
@@ -923,19 +923,19 @@ class Solution {
     Given an array of strings words and an integer k, return the k most frequent strings.
     Return the answer sorted by the frequency from highest to lowest. Sort the words with the same frequency by their lexicographical order.
 
-    Такс, ну тут уже задачка сложная..Конечно же, нам нужна хэшмапа и куча. Хэшмапа для быстрого нахождения и правильного хранения: ключ - слово, значение - популярность/частота встречи этого слова, куча для хранения топ k слов.
+Такс, ну тут уже задачка сложная..Конечно же, нам нужна хэшмапа и куча. Хэшмапа для быстрого нахождения и правильного хранения: ключ - слово, значение - популярность/частота встречи этого слова, куча для хранения топ k слов.
 
-    Куча..вот тут начинаются проблемы. Нам нужно определить компоратор, чтобы куча правильно сортировала внутри себя слова: compareBy { hmap[it]!! }(по возрастанию частоты) + thenByDescending { it } (при равных частотах: по убыванию слова).
+Куча..вот тут начинаются проблемы. Нам нужно определить компоратор, чтобы куча правильно сортировала внутри себя слова: compareBy { hmap[it]!! }(по возрастанию частоты) + thenByDescending { it } (при равных частотах: по убыванию слова).
 
-    Дальше проходимся по словам и заполняем хэшмапу.
+Дальше проходимся по словам и заполняем хэшмапу.
 
-    Проходимся теперь по ключам хэшмапы и добавляем в кучу, если куча превысила размер k, удаляем минимальный элемент.
+Проходимся теперь по ключам хэшмапы и добавляем в кучу, если куча превысила размер k, удаляем минимальный элемент.
 
-    После добавяем все из кучи в список и реверсим результат, тк в куче порядок удобный для определния k элементов, но не в том порядке, в котором требуется ответ:
+После добавяем все из кучи в список и реверсим результат, тк в куче порядок удобный для определния k элементов, но не в том порядке, в котором требуется ответ:
     
-    Извлекаем элементы из кучи (от "худших" к "лучшим")
+Извлекаем элементы из кучи (от "худших" к "лучшим")
 
-    Реверсируем список для порядка: убывание частоты + возрастание лексикографического порядка
+Реверсируем список для порядка: убывание частоты + возрастание лексикографического порядка
     
 ```
 Class Solution {
@@ -962,7 +962,176 @@ Class Solution {
     }
 }
 ```
+22. https://leetcode.com/problems/top-k-frequent-elements/   MEDIUM
 
+Тут тоже на топ k элементов, но задачка проще! Можем return the answer in any order.
+
+    Given an integer array nums and an integer k, return the k most frequent elements. You may return the answer in any order.
+
+Вообщем, делаем все тоже самое, что и выше, только в конце ничего реверсить не надо.
+
+    
+```
+class Solution {
+    fun topKFrequent(nums: IntArray, k: Int): IntArray {
+        val hmap = HashMap<Int, Int>()
+        val heap = PriorityQueue<Int>( compareBy {hmap[it]} )
+        nums.forEach { num ->
+            if(num in hmap.keys) hmap[num] = hmap.getOrDefault(num, 0) + 1
+            else hmap[num] = 1
+        }
+        hmap.keys.forEach { num ->
+            heap.add(num)
+            if (heap.size > k) heap.poll()
+        }
+        return heap.toIntArray()
+    }
+}
+```
+
+23. https://leetcode.com/problems/container-with-most-water/   MEDIUM
+
+    Неплохая задачка, суть решения: у нас два указателя. Нам тут важно учесть, что площадь равна a*b, где a - это минимальная высота (из двух высот по краям), а вот b - это расстояние между двумя этими высотами (p2-p1+1). Поэтому указатели указывают на начало и конец всего списка. И для того, чтобы понять, как нам двигать указатели, нужно определить минимальную высоту и двигать именно тот указатель, который указвает на минимальную высоту (жадный алгоритм?).
+```
+class Solution {
+    fun maxArea(height: IntArray): Int {
+        var p1 = 0
+        var p2 = height.size - 1
+        var res = -1
+        var minHeight = 0
+        while (p1 < p2) {
+            if (height[p1] < height[p2]) {
+                minHeight = height[p1]
+                p1++
+            } else {
+                minHeight = height[p2]
+                p2--
+            }
+            res = max(res, minHeight*(p2-p1+1))
+        }
+        return res
+    }
+}
+```
+24. https://leetcode.com/problems/partition-labels/   MEDIUM
+
+    You are given a string s. We want to partition the string into as many parts as possible so that each letter appears in at most one part.
+
+    For example, the string "ababcc" can be partitioned into ["abab", "cc"], but partitions such as ["aba", "bcc"] or ["ab", "ab", "cc"] are invalid.
+
+    Note that the partition is done so that after concatenating all the parts in order, the resultant string should be s.
+
+    Return a list of integers representing the size of these parts.
+
+Тут мы вспоминаем задачку на объединение интервалов!!
+
+Вот это решение более универсальное. Проходимся по строке и для каждой буквы запоминаем последнюю встречу ее в строке. Дальше определяем границы интервала, начало на 0, а вот конец на последней встрече первой буквы. Опять проходимся по строке и определяем конец интервала, если мы дошли до конца интервала, то добавляем его длину (last - first + 1) в результат и начинаем новый интервал.
+
+```
+class Solution {
+    fun partitionLabels(s: String): List<Int> {
+        val hmap = HashMap<Char, Int>()
+        val res = mutableListOf<Int>()
+        for (i in s.indices) {
+            hmap[s[i]] = i
+        }
+        var first = 0
+        var last = hmap[s[0]]!!
+        for (i in s.indices) {
+            last = maxOf(last, hmap[s[i]]!!)
+            if (i == last) {
+                res.add(last - first + 1)
+                first = last + 1
+            }
+        }
+        return res
+    }
+}
+```
+Этот алгоритм работает быстрее засчет использования IntArray(26). Вообще, кажется, каждый раз, когда работаем с char, предполагается его использование, но это не универсальный вариант.
+```
+class Solution {
+    fun partitionLabels(s: String): List<Int> {
+        val result = mutableListOf<Int>()
+        val positions = IntArray(26)
+        for (i in s.indices) {
+            val index = s[i] - 'a'
+            positions[index] = i
+        }
+        var start = 0
+        var last = 0
+        for (i in s.indices) {
+            last = maxOf(last, positions[s[i]-'a'])
+            if (i == last) {
+                result.add(last - start + 1)
+                start = last + 1
+            }
+        }
+        return result
+    }
+}
+```
+
+26. https://leetcode.com/problems/sliding-window-maximum/   HARD
+
+    You are given an array of integers nums, there is a sliding window of size k which is moving from the very left of the array to the very right. You can only see the k numbers in the window. Each time the sliding window moves right by one position.
+    Return the max sliding window.
+
+Ну тут задачка на sliding window, еще и hard. Рассмотрим сразу хорошее решение, плохое не буду.
+
+В хорошем решении нам нужно deque (дальше dq) - очередь, где у нас есть доступ к двум концам (Хранение индексов в порядке убывания значений).  
+
+Мы начинаем проходится по массиву. И в перую очередь нам нужно удалить все числа в dq, которые меньше нового числа из массива, они нам не нужны (своего рода сортировка, они не могут быть максимумами). 
+
+После добавляем в dq как последний элемент индекс нового числа (Всегда добавляем в конец).
+
+Если мы уже не в окне (heap.first() == i - k), то удалем первый элемент (двигаем окно на один вперед). Если окно сформировано (i >= k - 1), добавляем к результату макс число в окне.
+
+плохое, но простое решение:
+```
+class Solution {
+    fun maxSlidingWindow(nums: IntArray, k: Int): IntArray {
+        val result = mutableListOf<Int>()
+        val heap = PriorityQueue<Int>(compareByDescending{it})
+        for (i in 0..k-1) {
+            heap.add(nums[i])
+        }
+        result.add(heap.peek())
+        var p1 = 0
+        var p2 = k - 1
+        while (p2 < nums.size - 1) {
+            heap.remove(nums[p1])
+            p1++
+            p2++
+            heap.add(nums[p2])
+            result.add(heap.peek())
+        }
+        return result.toIntArray()
+    }
+}
+```
+хорошее решение с deque
+```
+class Solution {
+    fun maxSlidingWindow(nums: IntArray, k: Int): IntArray {
+        val result = mutableListOf<Int>()
+        val heap = ArrayDeque<Int>() //на самом деле это deque, не путать с кучей!! я неправильно назвала
+        for (i in nums.indices) {
+            while (heap.isNotEmpty() && nums[i] > nums[heap.last()]) {
+                heap.removeLast()
+            }
+            heap.addLast(i)
+            if (heap.first() == i - k) {
+                heap.removeFirst()
+            }
+            if (i >= k - 1) {
+                result.add(nums[heap.first()])
+            }
+        }
+        return result.toIntArray()
+    }
+}
+```
 
 ## ЗАМЕТКИ И ЛАЙФХАКИ
 
