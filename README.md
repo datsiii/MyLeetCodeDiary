@@ -1635,6 +1635,63 @@ class Solution {
 }
 ```
 
+## Какие-то задачки с тренировок
+
+#### 22. Generate Parentheses
+https://leetcode.com/problems/generate-parentheses/   MEDIUM
+
+Идея: используем рекурсию для перебора всех валидных комбинаций скобок.
+
+Параметры функции generate:
+
+open: количество оставшихся открывающих скобок (
+
+close: количество оставшихся закрывающих скобок )
+
+str: текущая строка
+
+Логика:
+
+База рекурсии: Если строка достигла длины 2n → добавляем в результат.
+
+Если есть открывающие скобки (open > 0): добавляем ( и рекурсивно вызываем generate(open-1, close, str + '(').
+
+Если закрывающих скобок больше, чем открывающих (close > open): добавляем ) и рекурсивно вызываем generate(open, close-1, str + ')').
+
+Почему это работает: условие close > open гарантирует, что закрывающая скобка не будет поставлена раньше открывающей (например, ()) — невалидно).
+
+Пример:
+Возможные пути:
+- Начать с "(" → 
+  - Добавить "(" → "((" → 
+    - Добавить ")" → "(()" → 
+      - Добавить ")" → "(())" ✅
+  - Добавить ")" → "()" → 
+    - Добавить "(" → "()(" → 
+      - Добавить ")" → "()()" ✅
+```
+class Solution {
+    fun generateParenthesis(n: Int): List<String> {
+        val res = mutableListOf<String>()
+        fun generate(open: Int, close: Int, str: String) {
+            if (str.length == n*2) {
+                res.add(str)
+                return
+            }
+            if (open > 0) {
+                generate(open - 1, close, str + '(')
+            }
+            if (close > open) {
+                generate(open, close - 1, str + ')')
+            }
+        }
+        var str = ""
+        generate(n, n, str)
+        return res
+    }
+}
+```
+
 ## ЗАМЕТКИ И ЛАЙФХАКИ
 
 ### Структуры
