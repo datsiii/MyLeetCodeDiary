@@ -1635,7 +1635,7 @@ class Solution {
 }
 ```
 
-## Какие-то задачки с тренировок
+## КАКИЕ-ТО ЗАДАЧКИ С ТРЕНЕРОВОК
 
 #### 22. Generate Parentheses
 https://leetcode.com/problems/generate-parentheses/   MEDIUM
@@ -1691,6 +1691,79 @@ class Solution {
     }
 }
 ```
+#### 17. Letter Combinations of a Phone Number
+https://leetcode.com/problems/letter-combinations-of-a-phone-number/    MEDIUM
+
+Ну можно решить быстрее, но я решила так.
+Решение использует DFS-рекурсию для генерации всех комбинаций букв, соответствующих цифрам в digits, перебирая для каждой цифры её буквы и накапливая текущую строку, с неявным backtracking за счёт передачи строки по значению.
+
+Backtracking в этом решении проявляется в том, что после возврата из рекурсивного вызова (который обрабатывает все комбинации для текущего префикса str + letter), мы возвращаемся к оригинальному значению str (которое не изменялось) и переходим к следующей букве. Это классический приём в DFS для комбинаторных задач.
+
+```
+class Solution {
+    fun letterCombinations(digits: String): List<String> {
+        val n = digits.length
+        val phoneNum = HashMap<Int, String>()
+        fillPhoneNumbers(phoneNum)
+        val result = mutableListOf<String>()
+
+        fun generate(str: String, index: Int) {
+            if (index == n) {
+                result.add(str)
+                return
+            }
+            val digit = digits[index] - '0'
+            for (letter in phoneNum[digit] ?: "") { 
+                generate(str + letter, index + 1) 
+            }
+        }
+
+        if (digits != "")  generate("", 0)
+
+        return result
+    }
+
+    fun fillPhoneNumbers(phoneNum: HashMap<Int, String>){
+        var str = "abcdefghijklmnopqrstuvwxyz"
+        for (i in 2..9) {
+            if (i == 7 || i == 9) {
+                phoneNum[i] = str.slice(0..3)
+                str = str.removeRange(0..3)
+            } else {
+                phoneNum[i] = str.slice(0..2)
+                str = str.removeRange(0..2)
+            }
+        }
+    }
+}
+```
+
+#### 12. Integer to Roman 
+https://leetcode.com/problems/integer-to-roman/    MEDIUM
+мое решение
+```
+class Solution {
+    fun intToRoman(num: Int): String {
+        val values = arrayOf(1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1)
+        val symbols = arrayOf("M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I")
+
+        var romanInteger = ""
+
+        var i = 0
+        var n = num
+        while(n > 0 && i < values.size) {
+            while (n >= values[i]) {
+                romanInteger += symbols[i]
+                n -= values[i]
+            }
+            i++
+        }
+
+        return romanInteger
+    }
+}
+```
+
 
 ## ЗАМЕТКИ И ЛАЙФХАКИ
 
