@@ -73,6 +73,7 @@ greedy problems:
 
 ### Решения
 
+#### linked-list-cycle
 2. https://leetcode.com/problems/linked-list-cycle/
 
     Задача на нахождения цикла в связанном списке. В решении представлен известный алгоритм на нахождение цикла "заяц и черепаха".
@@ -92,7 +93,7 @@ class Solution {
     }
 }
 ```
-
+#### add-two-numbers
 3. https://leetcode.com/problems/add-two-numbers/
    
     Задача по сути на сложение двух чисел, которые представленны в виде связанного списка в обратном порядке. Обратный порядок нам только на руку?
@@ -122,7 +123,7 @@ class Solution {
     }
 }
 ```
-
+#### reverse-linked-list    MEDIUM
 4. https://leetcode.com/problems/reverse-linked-list/
 
    Задача на разворот списка, тут две версии решения: циклом и рекурсией.
@@ -179,7 +180,7 @@ class Solution {
     }
 }
 ```
-
+#### reverse-linked-list-ii
 https://leetcode.com/problems/reverse-linked-list-ii/
 
 2 часть задачи на разворот списка, теперь развернуть нужно только определенную часть, заданную индексами левой и правой границы. 
@@ -218,6 +219,7 @@ class Solution {
     }
 }
 ```
+#### merge-k-sorted-lists
 1. https://leetcode.com/problems/merge-k-sorted-lists/ HARD
 
    Задача на слияние k отсортированных списков в один отсортированный список.
@@ -242,8 +244,8 @@ class Solution {
     }
 }
 ```
-
-5. https://leetcode.com/problems/binary-search/
+#### binary-search
+5. https://leetcode.com/problems/binary-search/   EASY
 
    Бинарный поиск, есть два указателя, делим массив на половинки, тк массив отсортирован (а для бин поиска он должен быть отсортирован), смотрим нужно в меньшую половину или в большую (двигаем указатели)
    
@@ -264,7 +266,7 @@ class Solution {
     }
 }
 ```
-
+#### guess-number-higher-or-lower
 6. https://leetcode.com/problems/guess-number-higher-or-lower/
    
    Еще один бинарный поиск, тут есть функция guess, которая говорит больше загаданное число или меньше. Важно: num = l + (r - l) / 2, используем такую формулу, чтобы избежать переполнения при сложении!
@@ -286,7 +288,7 @@ class Solution:GuessGame() {
     }
 }
 ```
-
+#### search-a-2d-matrix
 7. https://leetcode.com/problems/search-a-2d-matrix/ MEDIUM
 
    В задаче нужно определить есть ли заданное число в матрице, причем известно, что числа в матрице упорядочены (отсортированы).
@@ -318,7 +320,7 @@ class Solution {
 }
 ```
 
-
+#### search-in-rotated-sorted-array
 8. https://leetcode.com/problems/search-in-rotated-sorted-array/  MEDIUM
 
    А тут тоже задачка на бинарный поиск, но сложнее: массив был повернут. Это нам мешает, ведь для бин поиска массив должен быть отсортирован, а тут уже не совсем. Тогда мы приходим к мысли о том, что так-то есть отдельно отсортированные части, в которых мы и можем применить бинарный поиск. Но как нам найти pivot - ту точку, которая разделяет эти отдельные части? А то же при помощи бинарного поиска: нам нужно найти такое число, которое больше числа справа от него. После нахождения pivot, нам нужно определить, в какой половине нам искать, и тут возможны три случая:
@@ -363,7 +365,7 @@ fun search(nums: IntArray, target: Int): Int {
         return -1
     }
 ```
-
+#### find-minimum-in-rotated-sorted-array
 9. https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/   MEDIUM
 
     А вот тут тоже задачка с повернутом массивом, но уже на нахождение минимума, что, в целом, делает задачу проще предыдущей, так как решение сводится к ее первой части: нахождение pivot. (Т.к. pivot - это начало неперевернутой части, точнее минимальной, а еще точнее pivot и есть минимальное число).
@@ -384,7 +386,7 @@ class Solution {
 }
 ```
 
-
+#### search-in-rotated-sorted-array-ii
 10. https://leetcode.com/problems/search-in-rotated-sorted-array-ii/    MEDIUM
 
     Вторая часть задачки с поиском в повернутом массиве. Нам нужно только определить, есть ли заданное число в массиве. Но теперь проблема: числа в массиве могут повторяться. А на что это влияет? Pivot долго искать! Условие nums[left] == nums[mid] не позволяет однозначно определить, какая половина отсортирована. В худшем случае поиск pivot займет O(n), а мы хотим O(logn)
@@ -427,7 +429,7 @@ class Solution {
     }
 }
 ```
-
+#### single-number
 11. https://leetcode.com/problems/single-number/ - решить за O(1) по памяти
 
     Супер не очевидная и не интуитивная задачка!
@@ -447,7 +449,7 @@ class Solution {
     }
 }
 ```
-
+#### two-sum
 (2sum)
 12. https://leetcode.com/problems/two-sum/   EASY
 
@@ -469,7 +471,7 @@ class Solution {
     }
 }
 ```
-
+#### 3sum
 (3 sum)
 https://leetcode.com/problems/3sum/
  
@@ -523,6 +525,7 @@ class Solution {
     }
 }
 ```
+#### 4sum
 (4sum)
 13. https://leetcode.com/problems/4sum/
 
@@ -570,7 +573,7 @@ class Solution {
     }
 }
 ```
-
+#### group-anagrams
 14. https://leetcode.com/problems/group-anagrams/   MEDIUM
 
     Группируем аннограмы: An anagram is a word or phrase formed by rearranging the letters of a different word or phrase, using all the original letters exactly once.
@@ -590,7 +593,7 @@ class Solution {
     }
 }
 ```
-
+#### valid-anagram
 15. https://leetcode.com/problems/valid-anagram/   EASY
 
     Проверяем две строки на анаграммность.
@@ -626,6 +629,8 @@ class Solution {
     }
 }
 ```
+
+#### find-all-anagrams-in-a-string
 16. https://leetcode.com/problems/find-all-anagrams-in-a-string/   MEDIUM
 
         Given two strings s and p, return an array of all the start indices of p's anagrams in s. You may return the answer in any order.
@@ -672,7 +677,7 @@ class Solution {
     }
 }
 ```
-
+#### valid-parentheses
 17. https://leetcode.com/problems/valid-parentheses/   EASY
 
     А вот еще одна задачка на валидность, валдиность скобочек. Ну тут идея проста, делаем кучу, в которую кладем открывающиеся скобочки, а как только нашли закрывающуюся - сравниваем с последней скобочкой в куче, чтоб совпадали по типу.
@@ -701,7 +706,7 @@ class Solution {
     }
 }
 ```
-
+#### number-of-islands
 18. https://leetcode.com/problems/number-of-islands/   MEDIUM
 
    Задачечка на обход матрицы dfs'ом, выглядит страшно, как задачки на шахматы, но на самом деле все оки.
@@ -740,7 +745,7 @@ class Solution {
     }
 }
 ```
-
+#### remove-invalid-parentheses
 19. https://leetcode.com/problems/remove-invalid-parentheses/    HARD
 
     И опять задачка на скобочки. Только тут нужно неправильные скобочки убрать.
@@ -811,7 +816,7 @@ class Solution {
     }
 }
 ```
-
+#### merge-intervals
 20. https://leetcode.com/problems/merge-intervals/   MEDIUM
 
     Задачка на соединение интервалов, важно ее запомнить, она используеются в других задачках (не самым очевидным образом).
@@ -839,7 +844,7 @@ class Solution {
     }
 }
 ```
-
+#### find-the-maximum-length-of-valid-subsequence-i
 https://leetcode.com/problems/find-the-maximum-length-of-valid-subsequence-i/description/?envType=daily-question&envId=2025-07-17    MEDIUM
 
 Доп задачка, не из списка ичара, но пусть будет тут
@@ -918,6 +923,7 @@ class Solution {
     }
 }
 ```
+#### top-k-frequent-words
 21. https://leetcode.com/problems/top-k-frequent-words/    MEDIUM
 
     Given an array of strings words and an integer k, return the k most frequent strings.
@@ -962,6 +968,7 @@ Class Solution {
     }
 }
 ```
+#### top-k-frequent-elements
 22. https://leetcode.com/problems/top-k-frequent-elements/   MEDIUM
 
 Тут тоже на топ k элементов, но задачка проще! Можем return the answer in any order.
@@ -988,7 +995,7 @@ class Solution {
     }
 }
 ```
-
+#### container-with-most-water
 23. https://leetcode.com/problems/container-with-most-water/   MEDIUM
 
     Неплохая задачка, суть решения: у нас два указателя. Нам тут важно учесть, что площадь равна a*b, где a - это минимальная высота (из двух высот по краям), а вот b - это расстояние между двумя этими высотами (p2-p1+1). Поэтому указатели указывают на начало и конец всего списка. И для того, чтобы понять, как нам двигать указатели, нужно определить минимальную высоту и двигать именно тот указатель, который указвает на минимальную высоту (жадный алгоритм?).
@@ -1013,6 +1020,7 @@ class Solution {
     }
 }
 ```
+#### partition-labels
 24. https://leetcode.com/problems/partition-labels/   MEDIUM
 
     You are given a string s. We want to partition the string into as many parts as possible so that each letter appears in at most one part.
@@ -1071,7 +1079,7 @@ class Solution {
     }
 }
 ```
-
+#### sliding-window-maximum
 26. https://leetcode.com/problems/sliding-window-maximum/   HARD
 
     You are given an array of integers nums, there is a sliding window of size k which is moving from the very left of the array to the very right. You can only see the k numbers in the window. Each time the sliding window moves right by one position.
