@@ -1,5 +1,5 @@
 # MyLeetCodeDiary
-## Leetcode tasks from my hr
+## LEETCODE TASKS FROM MY HR
 ### Оглавление:
 
 linked lists:
@@ -840,10 +840,156 @@ class Solution {
 }
 ```
 
+https://leetcode.com/problems/find-the-maximum-length-of-valid-subsequence-i/description/?envType=daily-question&envId=2025-07-17    MEDIUM
+
+Доп задачка, не из списка ичара, но пусть будет тут
+
+You are given an integer array nums.
+A subsequence sub of nums with length x is called valid if it satisfies:
+
+(sub[0] + sub[1]) % 2 == (sub[1] + sub[2]) % 2 == ... == (sub[x - 2] + sub[x - 1]) % 2.
+Return the length of the longest valid subsequence of nums.
+
+A subsequence is an array that can be derived from another array by deleting some or no elements without changing the order of the remaining elements.
+
+В чем хитрость решения этой задачки: по остатку от деления на 2 мы можем получить только 0 или 1! То есть, сумма чисел может быть либо четной, либо нечетной! Но можем ли мы определить, в каком случае сумма двух чисел будет четной или нет?
+
+В моем алгоритме (интуитивно понятном, но не очень быстром) я решила определить четыре таких случая:
+
+1: Сумма будет четной, если два числа четные, поэтому просто считаем все четные числа - то есть суммы всех чисел этой подпоследовательности по остатку от 2х будут давать 0
+
+2: Сумма будет четной, если два числа нечетные, поэтому просто считаем все нечетные числа - то есть суммы всех чисел этой подпоследовательности по остатку от 2х будут давать 0
+
+Сумма будет нечетной, если четные и нечетные числа будут чередоваться, но в таком случае важно будет понять с какого числа началась наша подпоследовательность, с четного или нет, поэтому были определены еще два случая
+
+3: Сумма будет нечетной, если четность числа из массива будет совпадать с четностью индекса в подпоследовательности
+
+4: Сумма будет нечетной, если четность числа из массива НЕ будет совпадать с четностью индекса в подпоследовательности
+
+В результате берем макс от всех длин подпоследовательностей
+
+```
+class Solution {
+    fun maximumLength(nums: IntArray): Int {
+        val evenSub = nums.filter { it % 2 == 0 }.size
+        val notEvenSub = nums.filter { it % 2 != 0 }.size
+        var evenDistinctSub = 0
+        var notEvenDistinctSub = 0
+        for (i in 0..nums.size - 1) {
+            if (evenDistinctSub % 2 == nums[i] % 2) evenDistinctSub++
+            if (notEvenDistinctSub % 2 != nums[i] % 2) notEvenDistinctSub++
+        }
+        val result = maxOf(evenSub, notEvenSub, evenDistinctSub, notEvenDistinctSub)
+        return result
+    }
+}
+```
+Более быстрое решение, чем мое:
+```
+class Solution {
+    fun maximumLength(nums: IntArray): Int {
+        var oddCount = 0
+        var oddEvenCount = 0
+        var evenCount = 0
+
+        if (nums[0] % 2 == 0) {
+            oddCount++
+            oddEvenCount++
+        } else {
+            evenCount++
+            oddEvenCount++
+        }
+
+        for (i in 1 until nums.size) {
+            val oddness = nums[i] % 2
+            when (oddness) {
+                0 -> {
+                    oddCount++
+                    oddEvenCount += if (nums[i - 1] % 2 == 1) 1 else 0
+                }
+                1 -> {
+                    evenCount++
+                    oddEvenCount += if (nums[i - 1] % 2 == 0) 1 else 0
+                }
+            }
+        }
+
+        return maxOf(oddCount, oddEvenCount, evenCount)
+    }
+}
+```
+21. https://leetcode.com/problems/top-k-frequent-words/    MEDIUM
+
+    Given an array of strings words and an integer k, return the k most frequent strings.
+    Return the answer sorted by the frequency from highest to lowest. Sort the words with the same frequency by their lexicographical order.
+
+    Такс, ну тут уже задачка сложная..Конечно же, нам нужна хэшмапа и куча. Хэшмапа для быстрого нахождения и правильного хранения: ключ - слово, значение - популярность/частота встречи этого слова, куча для хранения топ k слов.
+
+    Куча..вот тут начинаются проблемы. Нам нужно определить компоратор, чтобы куча правильно сортировала внутри себя слова: compareBy { hmap[it]!! }(по возрастанию частоты) + thenByDescending { it } (при равных частотах: по убыванию слова).
+
+    Дальше проходимся по словам и заполняем хэшмапу.
+
+    Проходимся теперь по ключам хэшмапы и добавляем в кучу, если куча превысила размер k, удаляем минимальный элемент.
+
+    После добавяем все из кучи в список и реверсим результат, тк в куче порядок удобный для определния k элементов, но не в том порядке, в котором требуется ответ:
+    
+    Извлекаем элементы из кучи (от "худших" к "лучшим")
+
+    Реверсируем список для порядка: убывание частоты + возрастание лексикографического порядка
+    
+```
+Class Solution {
+    fun topKFrequent(words: Array<String>, k: Int): List<String> {
+        val hmap = HashMap<String, Int>()
+        val heap = PriorityQueue( compareBy<String> { hmap[it]!! }.thenByDescending { it }) 
+        words.forEach { word ->
+            if (word in hmap) {
+                hmap[word] = hmap[word]!! + 1
+            }
+            else {
+                hmap[word] = 1
+            }
+        }
+
+        hmap.keys.forEach { word ->
+            heap.add(word)
+            if (heap.size > k) heap.poll()
+        }
+
+        val result = mutableListOf<String>()
+        while (heap.isNotEmpty()) result.add(heap.poll())
+        return result.reversed()
+    }
+}
+```
 
 
+## ЗАМЕТКИ И ЛАЙФХАКИ
 
-## Когда-то решенные мною задачки
+### Структуры
+
+HashMap, PriorityQueue, ArrayDeque, Queue as LinkedList
+
+### Оценка сложности
+?
+
+### Подстрока и подпоследовательность
+
+Подпоследовательность (subsequence) это НЕ обязательно идущие подряд символы! А вот подстрока (substring) - это НЕПРЕРЫВНАЯ подпоследовательность
+
+### dfs, bfs, bst
+
+dummy node, backtracking
+
+### in order, pre order, post order
+
+end etc
+
+### Префиксные (суфиксные) суммы
+
+?
+
+## КОГДА-ТО РЕШЕННЫЕ МНОЮ ЗАДАЧКИ
 
 Тут возможны повторения с задачками выше
 
