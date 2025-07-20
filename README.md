@@ -1140,6 +1140,410 @@ class Solution {
     }
 }
 ```
+#### longest-repeating-character-replacement
+27. https://leetcode.com/problems/longest-repeating-character-replacement/    MEDIUM
+    You are given a string s and an integer k. You can choose any character of the string and change it to any other uppercase English character. You can perform this operation at most k times.
+
+    Return the length of the longest substring containing the same letter you can get after performing the above operations.
+
+Задача на буквы, значит что? Используем IntArray(26). Опять sliding window. В чем ключевая идея решения? Интутитивно понятно, что нам нужна строка, в которой только k кол-во букв отличается от самой популярной буквы!
+
+Проходимся по массиву, для встреченной буквы увеличиваем счетчик и определяем максимальный счетчик (счетчик самой популярной буквы), вместе с этим увеличиваем window. 
+
+Если уже больше чем k букв отличается от самой популярной (((endIndex - startIndex) - maxCount) > k), то двигаем окно на 1 букву вперед. При этом, просто уменьшаем счетчик буквы у начальной границы окна на один.
+
+Правка: endIndex можно заменить i
+```
+class Solution {
+    fun characterReplacement(s: String, k: Int): Int {
+        val arr = IntArray(26)
+        var maxCount = 0
+        var startIndex = 0
+        var endIndex = 0
+        var result = 0
+        
+        for (i in s.indices) {
+            arr[s[i]-'A']++
+            maxCount = maxOf(maxCount, arr[s[i] - 'A'])
+            endIndex++
+
+            if (((endIndex - startIndex) - maxCount) > k) {
+                arr[s[startIndex] - 'A']--
+                startIndex++
+            }
+
+            result = max(result, endIndex - startIndex)
+        }
+        return result
+    }
+}
+```
+#### same-tree
+28. https://leetcode.com/problems/same-tree/
+
+Ну просто проходимся рекурсией по дереву и проверяем, что хождение по левым нодам равно хождению по правым нодам (return isSameTree(p.left, q.left) && isSameTree(p.right, q.right))
+
+мой старый вариант
+```
+class Solution {
+    fun isSameTree(p: TreeNode?, q: TreeNode?): Boolean {
+        var result = true
+        fun dfs(p: TreeNode?, q: TreeNode?) {
+            if ((p == null) and (q == null)) return
+            dfs(p?.left, q?.left)
+            if (p?.`val` != q?.`val`) result = false
+            dfs(p?.right, q?.right)
+        }
+        dfs(p, q)
+        return result
+    }
+}
+```
+новый вариант лучше
+```
+class Solution {
+    fun isSameTree(p: TreeNode?, q: TreeNode?): Boolean {
+        if (p == null && q == null) return true
+        if (p == null || q == null) return false
+        if (p.`val` != q.`val`) return false
+        
+        return isSameTree(p.left, q.left) && isSameTree(p.right, q.right)
+    }
+}
+```
+#### symmetric-tree
+29. https://leetcode.com/problems/symmetric-tree/    EASY
+
+Похоже на предыдущую задачку, только тут мы сравниваем лево с право у разных нод (return isSymmetricNodes(p.left, q.right) && isSymmetricNodes(p.right, q.left))
+```
+class Solution {
+    fun isSymmetric(root: TreeNode?): Boolean {
+
+        fun isSymmetricNodes(p: TreeNode?, q: TreeNode?): Boolean {
+            if (p == null && q == null) return true
+            if (p == null || q == null) return false
+            if(p?.`val` != q.`val`) return false
+
+            return isSymmetricNodes(p.left, q.right) && isSymmetricNodes(p.right, q.left)
+        }
+
+        return isSymmetricNodes(root?.left, root?.right)
+    }
+}
+```
+#### balanced-binary-tree
+30. https://leetcode.com/problems/balanced-binary-tree/    EASY
+    A height-balanced binary tree is a binary tree in which the depth of the two subtrees of every node never differs by more than one.
+
+Тут сложно. Условие выхода из рекурсии - мы дошли до листка - нода равна null - возвращам 0. Определяем лево и право (dfs(node.left) и dfs(node.right)). Ищем разницу между ними, если больше 1, то все, дерево не сбалансированно. А так, возвраащем максимум от лева и права + 1 (определяем высоту так).
+```
+class Solution {
+    fun isBalanced(root: TreeNode?): Boolean {
+        
+        fun dfs(node: TreeNode?): Int {
+            if (node == null) return 0
+
+            val leftHeight = dfs(node.left)
+            if (leftHeight == -1) return -1
+
+            val rightHeight = dfs(node.right)
+            if (rightHeight == -1) return -1
+
+            if(abs(rightHeight - leftHeight) > 1) return -1
+
+            return max(leftHeight, rightHeight) + 1
+        }
+        
+        return dfs(root) != -1
+    }
+}
+```
+более понятный код
+```
+class Solution {
+    private var isBalanced = true
+
+    fun isBalanced(root: TreeNode?): Boolean {
+        dfs(root)
+        return isBalanced
+    }
+
+    private fun dfs(node: TreeNode?): Int {
+        if (node == null) return 0
+        val left = dfs(node.left)
+        val right = dfs(node.right)
+
+        if (abs(left - right) > 1) {
+            isBalanced = false
+        }
+
+        return maxOf(left, right) + 1
+    }
+}
+```
+#### path sum I
+https://leetcode.com/problems/path-sum/
+```
+class Solution {
+    fun hasPathSum(root: TreeNode?, targetSum: Int): Boolean {
+        fun dfs(node: TreeNode?, currentSum: Int) : Boolean {
+            if (node == null) return false
+            val newSum = currentSum + node.`val`
+            if (node.left == null && node.right == null) {
+                return newSum == targetSum
+            }
+            return dfs(node.left, newSum) || dfs(node.right, newSum)
+        }
+        return dfs(root, 0)
+    }
+}
+```
+
+#### path sum II
+31. https://leetcode.com/problems/path-sum-ii/
+```
+class Solution {
+    fun pathSum(root: TreeNode?, targetSum: Int): List<List<Int>> {
+        val result = mutableListOf<List<Int>>()
+        val temp = mutableListOf<Int>()
+        fun dfs(node: TreeNode?, currentSum: Int) {
+            if (node == null) return
+
+            val newSum = currentSum + node.`val`
+            temp.add(node.`val`)
+
+            if (node.left == null && node.right == null && newSum == targetSum) {
+                result.add(ArrayList(temp))
+            }
+
+            dfs(node.left, newSum)
+            dfs(node.right, newSum)
+            temp.removeAt(temp.size - 1)
+        }
+
+        dfs(root, 0)
+        return result
+    }
+}
+```
+#### best-time-to-buy-and-sell-stock
+32. https://leetcode.com/problems/best-time-to-buy-and-sell-stock/
+```
+class Solution {
+    fun maxProfit(prices: IntArray): Int {
+        var result = 0
+        var minDay = prices[0]
+
+        for (i in prices.indices) {
+            minDay = minOf(minDay, prices[i])
+            result = maxOf(result, prices[i] - minDay)
+        }
+
+        return result
+    }
+}
+```
+
+#### best-time-to-buy-and-sell-stock-ii
+33. https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/
+```
+class Solution {
+    fun maxProfit(prices: IntArray): Int {
+        var profit = 0
+
+        for (i in 0 until prices.size - 1) {
+            if (prices[i+1] > prices[i]) {
+                profit += prices[i+1] - prices[i]
+            }
+        }
+    
+        return profit
+    }
+}
+```
+#### best-time-to-buy-and-sell-stock-with-transaction-fee
+34. https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/
+```
+class Solution {
+    fun maxProfit(prices: IntArray, fee: Int): Int {
+        val n = prices.size
+        var profit = 0
+
+        val cash = IntArray(n)
+        val hold = IntArray(n)
+         
+        cash[0] = 0
+        hold[0] = -prices[0]
+
+        for (i in 1..n - 1) {
+            cash[i] = maxOf(cash[i-1], hold[i-1] + prices[i] - fee)
+            hold[i] = maxOf(hold[i-1], cash[i-1] - prices[i])
+            profit = maxOf(cash[i], hold[i])
+        }
+
+        return profit
+    }
+}
+```
+более быстрое решение
+```
+class Solution {
+    fun maxProfit(prices: IntArray, fee: Int): Int {
+        val n = prices.size
+         
+        var sold = 0
+        var buy = -prices[0]
+
+        for (i in 1..n - 1) {
+            val prevSold = sold
+            sold = maxOf(prevSold, buy + prices[i] - fee)
+            buy = maxOf(buy, prevSold - prices[i])
+        }
+
+        return sold
+    }
+}
+```
+#### best-time-to-buy-and-sell-stock-with-cooldown
+35. https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/
+```
+class Solution {
+    fun maxProfit(prices: IntArray): Int {
+        val n = prices.size
+
+        var cooldown = 0//may buy or do nothing
+        var hold = -prices[0]//may sell or hold
+        var sold = 0 //sell, cooldown after that
+
+        for (i in 1..n - 1) {
+            val prevHold = hold
+            val prevSold = sold
+
+            hold = maxOf(prevHold, cooldown - prices[i])
+            sold = prevHold + prices[i]
+            cooldown = maxOf(cooldown, prevSold)
+        }
+
+        return maxOf(sold, cooldown)
+    }
+}
+```
+#### minimum-size-subarray-sum
+https://leetcode.com/problems/minimum-size-subarray-sum/?envType=problem-list-v2&envId=prefix-sum
+```
+class Solution {
+    fun minSubArrayLen(target: Int, nums: IntArray): Int {
+        val n = nums.size
+        var subLength = n+3
+
+        var startIndex = 0
+        var currentSum = 0
+        for (i in 0..n-1) {
+            currentSum += nums[i]
+            while (currentSum >= target) {
+                subLength = min(subLength, i - startIndex + 1)
+                currentSum -= nums[startIndex]
+                startIndex++
+            }
+        }
+        
+        return if(subLength != n+3) subLength else 0
+    }
+}
+```
+#### find-pivot-index
+https://leetcode.com/problems/find-pivot-index/?envType=problem-list-v2&envId=prefix-sum
+```
+class Solution {
+    fun pivotIndex(nums: IntArray): Int {
+        val n = nums.size
+        val prefixSum = IntArray(n+1)
+
+        prefixSum[0] = nums[0]
+        prefixSum[n] = 0
+        for (i in 1..n-1) {
+            prefixSum[i] = prefixSum[i-1] + nums[i]
+        }
+        var pivot = -1
+        var leftSum = 0
+        var rightSum = prefixSum[n-1] - prefixSum[0]
+        for (i in 1..n) {
+            if (leftSum == rightSum) {
+                pivot = i - 1
+                break
+            }
+            leftSum = prefixSum[i-1]
+            rightSum = prefixSum[n-1] - prefixSum[i]
+        }
+
+        return pivot
+    }
+}
+```
+#### product-of-array-except-self
+https://leetcode.com/problems/product-of-array-except-self/?envType=problem-list-v2&envId=prefix-sum
+```
+class Solution {
+    fun productExceptSelf(nums: IntArray): IntArray {
+        val n = nums.size
+        var answer = IntArray(n)
+        answer[0] = 1
+        for (i in 1..n-1) {
+            answer[i] = answer[i-1]*nums[i-1]
+        }
+        var right = 1
+        for (i in n-1 downTo 0) {
+            answer[i] = answer[i] * right
+            right = nums[i] * right
+        }
+
+        return answer
+    }
+}
+```
+
+#### longest-common-subsequence
+https://leetcode.com/problems/longest-common-subsequence/
+```
+class Solution {
+    fun longestCommonSubsequence(text1: String, text2: String): Int {
+        val n = text1.length
+        val m = text2.length
+        val answer = Array(n+1) { IntArray(m+1) }
+        for (i in 1..n) {
+            for (j in 1..m) {
+                if(text1[i-1] == text2[j-1]) {
+                    answer[i][j] = answer[i-1][j-1] + 1
+                } else {
+                    answer[i][j] = maxOf(answer[i-1][j], answer[i][j-1])
+                }
+            }
+        }
+
+        return answer[n][m]
+    }
+}
+```
+#### lowest-common-ancestor-of-a-binary-tree
+https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/
+```
+class Solution {
+    fun lowestCommonAncestor(root: TreeNode?, p: TreeNode?, q: TreeNode?): TreeNode? {
+        fun dfs (node: TreeNode?): TreeNode? {
+            if (node == null) return null
+            if (node == p || node == q) return node
+            val left = dfs(node.left)
+            val right = dfs(node.right)
+            when {
+                left != null && right != null -> return node
+                left != null && right == null -> return left
+                else -> return right
+            }
+        }
+        return dfs(root)
+    }
+}
+```
 
 ## ЗАМЕТКИ И ЛАЙФХАКИ
 
