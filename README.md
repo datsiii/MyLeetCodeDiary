@@ -1282,7 +1282,10 @@ class Solution {
 }
 ```
 #### path sum I
-https://leetcode.com/problems/path-sum/
+https://leetcode.com/problems/path-sum/    MEDIUM
+
+Тут задачка, в которой нужно определить есть ли root-to-leaf!!! путь, значения нод котрого в сумме дают targetSum. Пока обходим дерево newSum = currentSum + node.`val, когда дошли до листка (node.left == null && node.right == null) сравниваем суммы. Рекурсивно вызываем return dfs(node.left, newSum) || dfs(node.right, newSum): для не листьев → проверяем левое и правое поддеревья. Логика ИЛИ: Если хотя бы один путь в потомках валиден → возвращаем true.
+
 ```
 class Solution {
     fun hasPathSum(root: TreeNode?, targetSum: Int): Boolean {
@@ -1300,7 +1303,19 @@ class Solution {
 ```
 
 #### path sum II
-31. https://leetcode.com/problems/path-sum-ii/
+31. https://leetcode.com/problems/path-sum-ii/    MEDIUM
+
+Вторая часть той же задачки. Теперь нужно вернуть all root-to-leaf paths.
+
+Добавляем текущий узел в путь: newSum = currentSum + node.val`` ии temp.add(node.val)
+
+Проверяем на листок и сумму: если узел — лист и newSum == targetSum → добавляем копию temp в result.
+
+Рекурсивный вызов: dfs(node.left, newSum) и dfs(node.right, newSum)
+
+Backtracking: Удаляем последний элемент из temp (temp.removeAt(temp.size-1)).
+
+**Важное замечание!!** Использование ArrayList(temp) критически важно, потому что temp изменяется в процессе backtracking. Без копии все пути в результате будут одинаковыми (последним состоянием temp)!!
 ```
 class Solution {
     fun pathSum(root: TreeNode?, targetSum: Int): List<List<Int>> {
@@ -1313,7 +1328,7 @@ class Solution {
             temp.add(node.`val`)
 
             if (node.left == null && node.right == null && newSum == targetSum) {
-                result.add(ArrayList(temp))
+                result.add(ArrayList(temp)) //копируем!
             }
 
             dfs(node.left, newSum)
@@ -1327,7 +1342,9 @@ class Solution {
 }
 ```
 #### best-time-to-buy-and-sell-stock
-32. https://leetcode.com/problems/best-time-to-buy-and-sell-stock/
+32. https://leetcode.com/problems/best-time-to-buy-and-sell-stock/    EASY
+
+Хорошая задачка) Нужно вернуть макс профит от продажи акций. Решение: находим день, в котром акция стоит минимально. А результатом будет наибольшая разница между текущей ценой и ценой в минимальный день.
 ```
 class Solution {
     fun maxProfit(prices: IntArray): Int {
@@ -1344,8 +1361,10 @@ class Solution {
 }
 ```
 
-#### best-time-to-buy-and-sell-stock-ii
+#### best-time-to-buy-and-sell-stock-ii    MEDIUM
 33. https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/
+
+Еще одна хорошая задачка, точнее ее вторая часть. Теперь мы можем несколько раз покупать и продавать акции. Хитрость решения: мы просто продаем и покупаем акции каждый раз, когда в плюсе (prices[i+1] > prices[i]), даже если маленьком, в сумме это даст нам макс профит.
 ```
 class Solution {
     fun maxProfit(prices: IntArray): Int {
@@ -1362,7 +1381,17 @@ class Solution {
 }
 ```
 #### best-time-to-buy-and-sell-stock-with-transaction-fee
-34. https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/
+34. https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/    MEDIUM
+
+Версия хорошей задачки с налогом. Важно: налог только при продаже. У нас есть два состояния: либо продаем (и у нас cash), либо держим (hold, покупаем)
+
+hold[0] = -prices[0] инициализируем так, поскольку мы купили первую акцию в долг.
+
+Из cash мы можем либо ничего не делать (cash[i-1]), либо еще раз продать (hold[i-1] + prices[i] - fee).
+
+Из hold мы можем либо ничего не делать (hold[i-1], либо купить (cash[i-1] - prices[i]).
+
+Нужен максимум.
 ```
 class Solution {
     fun maxProfit(prices: IntArray, fee: Int): Int {
@@ -1386,6 +1415,7 @@ class Solution {
 }
 ```
 более быстрое решение
+Нам не обязательно в этой задаче нужен массив!! можем оперировать переменными!
 ```
 class Solution {
     fun maxProfit(prices: IntArray, fee: Int): Int {
@@ -1405,14 +1435,25 @@ class Solution {
 }
 ```
 #### best-time-to-buy-and-sell-stock-with-cooldown
-35. https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/
+35. https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/    MEDIUM
+
+Версия хорошей задачки с cooldown'ом. Уже ученые, что массив нам не нужен, оперируем переменными:
+
+hold - из этого состояния мы можем что-нибудь купить или ничего не делать (maxOf(prevHold, cooldown - prices[i]))
+
+sold = 0 - в этом состоянии мы продаем, из него мы обязательно должны перейти в cooldown (prevHold + prices[i])
+
+cooldown - из этого состояния мы либо можем продолжать отдыхать, либо что-нибудь купить (maxOf(cooldown, prevSold)) (Могли отдыхать и вчера → prevCooldown или завершили вчерашнюю продажу → prevSold)
+
+Ответ: max(sold, cooldown) (в конце нельзя иметь акцию, иначе убыток).
+
 ```
 class Solution {
     fun maxProfit(prices: IntArray): Int {
         val n = prices.size
 
         var cooldown = 0//may buy or do nothing
-        var hold = -prices[0]//may sell or hold
+        var hold = -prices[0]//may buy or hold
         var sold = 0 //sell, cooldown after that
 
         for (i in 1..n - 1) {
@@ -1429,7 +1470,14 @@ class Solution {
 }
 ```
 #### minimum-size-subarray-sum
-https://leetcode.com/problems/minimum-size-subarray-sum/?envType=problem-list-v2&envId=prefix-sum
+https://leetcode.com/problems/minimum-size-subarray-sum/?envType=problem-list-v2&envId=prefix-sum    MEDIUM
+    
+    Given an array of positive integers nums and a positive integer target, return the minimal length of a subarray whose sum is greater than or equal to target. 
+    If there is no such subarray, return 0 instead.
+
+Ну задачка тоже на окно. Если текущая сумма больше target, уменьшаем окно. (currentSum -= nums[startIndex], startIndex++)
+
+subLength = n+3 - чтобы определить нашли ли мы нужный подмассив или нет
 ```
 class Solution {
     fun minSubArrayLen(target: Int, nums: IntArray): Int {
@@ -1452,7 +1500,11 @@ class Solution {
 }
 ```
 #### find-pivot-index
-https://leetcode.com/problems/find-pivot-index/?envType=problem-list-v2&envId=prefix-sum
+https://leetcode.com/problems/find-pivot-index/?envType=problem-list-v2&envId=prefix-sum    EASY
+    
+    The pivot index is the index where the sum of all the numbers strictly to the left of the index is equal to the sum of all the numbers strictly to the index's right.
+
+Ну не так уж и easy.. Используем префиксные суммы. Первый раз проходимся по массиву и заполняем их. Второй раз проходимся по префиксным суммам и сравниваем левую и правую сумму. pivot = i - 1!!
 ```
 class Solution {
     fun pivotIndex(nums: IntArray): Int {
@@ -1481,7 +1533,12 @@ class Solution {
 }
 ```
 #### product-of-array-except-self
-https://leetcode.com/problems/product-of-array-except-self/?envType=problem-list-v2&envId=prefix-sum
+https://leetcode.com/problems/product-of-array-except-self/?envType=problem-list-v2&envId=prefix-sum    MEDIUM
+
+    Given an integer array nums, return an array answer such that answer[i] is equal to the product of all the elements of nums except nums[i].
+
+Вот это трешик. Используем префиксы произведения (важно: answer[i] = answer[i-1]*nums[i-1]). Дальше идем с конца и меняем тот же префиксный массив (answer[i] = answer[i] * right)! answer[i] - левая часть, определяем правую часть nums[i] * right
+
 ```
 class Solution {
     fun productExceptSelf(nums: IntArray): IntArray {
@@ -1503,7 +1560,14 @@ class Solution {
 ```
 
 #### longest-common-subsequence
-https://leetcode.com/problems/longest-common-subsequence/
+https://leetcode.com/problems/longest-common-subsequence/    MEDIUM
+
+    Given two strings text1 and text2, return the length of their longest common subsequence. If there is no common subsequence, return 0.
+    A subsequence of a string is a new string generated from the original string with some characters (can be none) deleted without changing the relative order of the remaining characters.
+
+Тут динамическое программирование. Проходимся по двум строками и сравниваем. Если символы равны, то увеличиваем счетчик подпоследовательности (answer[i][j] = answer[i-1][j-1] + 1). В другом случае идем на клетку с макс счетчиком (answer[i][j] = maxOf(answer[i-1][j], answer[i][j-1])). Последний элемент матрицы и будет макс ответом.
+
+**Важно:** answer = Array(n+1) { IntArray(m+1) }, не забываем + 1!! и range 1..n, 1..m
 ```
 class Solution {
     fun longestCommonSubsequence(text1: String, text2: String): Int {
@@ -1525,7 +1589,33 @@ class Solution {
 }
 ```
 #### lowest-common-ancestor-of-a-binary-tree
-https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/
+https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/    Medium
+
+    Given a binary tree, find the lowest common ancestor (LCA) of two given nodes in the tree.
+    According to the definition of LCA on Wikipedia: “The lowest common ancestor is defined between two nodes p and q as the lowest node in T that has both p and q as descendants (where we allow a node to be a descendant of itself).”
+
+Рекурсивная функция dfs обходит дерево, начиная с корня.
+
+Если текущий узел null, возвращаем null.
+
+Если текущий узел равен p или q, возвращаем его (базовый случай).
+
+Рекурсивно вызываем dfs для левого поддерева.
+
+Рекурсивно вызываем dfs для правого поддерева.
+
+Если оба поддерева вернули не-null, значит, p и q найдены в разных ветвях → текущий узел LCA.
+
+Если только левое поддерево вернуло узел, возвращаем его (LCA в левой ветви).
+
+Если только правое поддерево вернуло узел, возвращаем его.
+
+Если оба поддерева вернули null, возвращаем null.
+
+Результат — узел, возвращённый вызовом dfs(root).
+
+Ключевая идея: LCA — первый узел, который "видит" оба искомых узла в своих поддеревьях.
+
 ```
 class Solution {
     fun lowestCommonAncestor(root: TreeNode?, p: TreeNode?, q: TreeNode?): TreeNode? {
