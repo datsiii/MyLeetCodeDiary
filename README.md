@@ -1877,14 +1877,17 @@ class Solution {
     fun findSubsequence(nums: List<Int>, x: Int): List<Int> {
         var sum = 0
         val prefixSums = HashMap<Int, Int>()
+        prefixSums[0] = -1
 
         for (i in nums.indices) {
             sum += nums[i]
             if (prefixSums.contains(sum - x)) {
                 val start = prefixSums[sum - x]!! + 1
-                return listOf(start, i + 1)
+                return listOf(start, i)
             }
-            prefixSums[i] = sum
+            if (!prefixSums.containsKey(sum)) {
+                prefixSums[sum] = i
+            }
         }
         return emptyList()
     }
