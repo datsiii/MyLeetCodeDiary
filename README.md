@@ -1659,10 +1659,35 @@ class Solution {
                 if (nums[left] == 0) zeroCount--
                 left++
             }
-            maxLength = maxOf(maxLength, i - left)
+            maxLength = maxOf(maxLength, i - left + 1)
         }
 
         return maxLength
+    }
+    //Кратчайшее расстояние между двумя элементами в массиве
+    fun minDistance(nums: IntArray, x: Int, y: Int): Int {
+        var minDist = Int.MAX_VALUE
+        var lastX = -1
+        var lastY = -1
+    
+        for (i in nums.indices) {
+            when (nums[i]) {
+                x -> {
+                    if (lastY != -1) {
+                        minDist = minOf(minDist, i - lastY)
+                    }
+                    lastX = i
+                }
+                y -> {
+                    if (lastX != -1) {
+                        minDist = minOf(minDist, i - lastX)
+                    }
+                    lastY = i
+                }
+            }
+        }
+    
+        return if (minDist == Int.MAX_VALUE) -1 else minDist
     }
     //ранее окно для встречи двух челиков
     fun findMeetingSlot(
