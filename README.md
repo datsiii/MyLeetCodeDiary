@@ -1722,8 +1722,8 @@ class Solution {
 
         return window
     }
-    //найти всплески пользовательской активности
 
+    //найти всплески пользовательской активности
     class RobotStatistics {
         private val eventQueue: Deque<Pair<Long, Int>> = LinkedList()// Очередь для хранения событий (время, user_id)
         private val userEventCounts = mutableMapOf<Int, Int>()// Счетчик событий для каждого пользователя
@@ -1769,6 +1769,73 @@ class Solution {
 
 
     //найти два одинаковых поддерева (ну типа знаем)
+    fun findDuplicateSubtrees(root: TreeNode?): List<TreeNode?> {
+        val duplicatesMap = mutableMapOf<String, Int>()
+        val results = mutableListOf<TreeNode?>()
+        fun dfs(root: TreeNode?): String {
+            if (root == null) return "()"
+            val str = (dfs(root.left) + root.`val`.toString() + dfs(root.right)).hashCode().toString()
+            duplicatesMap[str] = duplicatesMap.getOrDefault(str, 0) + 1
+            if (duplicatesMap[str] == 2) results.add(root)
+            return "($str)"
+        }
+        dfs(root)
+        return results
+    }
+    //same-tree
+    ```
+    class Solution {
+        fun isSameTree(p: TreeNode?, q: TreeNode?): Boolean {
+            if (p == null && q == null) return true
+            if (p == null || q == null) return false
+            if (p.`val` != q.`val`) return false
+            
+            return isSameTree(p.left, q.left) && isSameTree(p.right, q.right)
+        }
+    }
+    ```
+    //symmetric-tree
+    ```
+    class Solution {
+        fun isSymmetric(root: TreeNode?): Boolean {
+    
+            fun isSymmetricNodes(p: TreeNode?, q: TreeNode?): Boolean {
+                if (p == null && q == null) return true
+                if (p == null || q == null) return false
+                if(p?.`val` != q.`val`) return false
+    
+                return isSymmetricNodes(p.left, q.right) && isSymmetricNodes(p.right, q.left)
+            }
+    
+            return isSymmetricNodes(root?.left, root?.right)
+        }
+    }
+    ```
+    //balanced-binary-tree
+    
+    Тут сложно. Условие выхода из рекурсии - мы дошли до листка - нода равна null - возвращам 0. Определяем лево и право (dfs(node.left) и dfs(node.right)). Ищем разницу между ними, если больше 1, то все, дерево не сбалансированно. А так, возвраащем максимум от лева и права + 1 (определяем высоту так).
+    ```
+    class Solution {
+        private var isBalanced = true
+    
+        fun isBalanced(root: TreeNode?): Boolean {
+            dfs(root)
+            return isBalanced
+        }
+    
+        private fun dfs(node: TreeNode?): Int {
+            if (node == null) return 0
+            val left = dfs(node.left)
+            val right = dfs(node.right)
+    
+            if (abs(left - right) > 1) {
+                isBalanced = false
+            }
+    
+            return maxOf(left, right) + 1
+        }
+    }
+    ```
 
     //вертикальная ось симметрии
     class Point(val x: Int, val y: Int)
