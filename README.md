@@ -1870,6 +1870,25 @@ class Solution {
 
         return result
     }
+
+    //подотрезок с суммой x
+    //найти непустой подотрезок - непрерывную подпоследовательность с заданной суммой х либо сказать что это невозможно (с моего первого собеса)
+    //числа могут быть отрицательными
+    fun findSubsequence(nums: List<Int>, x: Int): List<Int> {
+        var sum = 0
+        val prefixSums = HashMap<Int, Int>()
+
+        for (i in nums.indices) {
+            sum += nums[i]
+            if (prefixSums.contains(sum - x)) {
+                val start = prefixSums[sum - x]!! + 1
+                return listOf(start, i + 1)
+            }
+            prefixSums[i] = sum
+        }
+        return emptyList()
+    }
+
 ```
 #### 22. Generate Parentheses
 https://leetcode.com/problems/generate-parentheses/   MEDIUM
