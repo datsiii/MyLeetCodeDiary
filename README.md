@@ -1636,6 +1636,239 @@ class Solution {
 ```
 
 ## КАКИЕ-ТО ЗАДАЧКИ С ТРЕНЕРОВОК
+//является ли первая строка подпоследовательностью второй строки
+    fun fuzzySearch(input: String, text: String) : Boolean {
+        var j = 0
+        for (i in text.indices) {
+            if (j < input.length && input[j] == text[i]) {
+                j++
+            }
+        }
+        return j == input.length
+    }
+    //максимальный подмассив из единиц с не более чем k изменений
+    fun findMaxLengthOfOnes(nums: IntArray, k: Int): Int {
+        var left = 0
+        var zeroCount = 0
+        var maxLength = 0
+
+        for (i in nums.indices) {
+            if (nums[i] == 0) zeroCount++
+            while (zeroCount > k) {
+                if (nums[left] == 0) zeroCount--
+                left++
+            }
+            maxLength = maxOf(maxLength, i - left)
+        }
+
+        return maxLength
+    }
+    //ранее окно для встречи двух челиков
+    fun findMeetingSlot(
+        slotsA: Array<IntArray>,
+        slotsB: Array<IntArray>,
+        duration: Int
+    ): IntArray {
+        var p1 = 0
+        var p2 = 0
+        var window = intArrayOf(0, 0)
+
+        val sortedA = slotsA.sortedBy { it[0] }
+        val sortedB = slotsB.sortedBy { it[0] }
+
+        while (p1 < slotsA.size && p2 < slotsB.size) {
+            val a = sortedA[p1]
+            val b = sortedB[p2]
+
+            val start = maxOf(a[0], b[0])
+            val end = minOf(a[1], b[1])
+            if (end - start >= duration) {
+                window = intArrayOf(start, start + duration)
+                break
+            }
+
+            if (a[1] < b[1]) {
+                p1++
+            } else {
+                p2++
+            }
+        }
+
+        return window
+    }
+    //найти всплески пользовательской активности
+
+    class RobotStatistics {
+        private val eventQueue: Deque<Pair<Long, Int>> = LinkedList()// Очередь для хранения событий (время, user_id)
+        private val userEventCounts = mutableMapOf<Int, Int>()// Счетчик событий для каждого пользователя
+        private var robotCount = 0// Счетчик пользователей с ≥1000 событий
+
+        fun onEvent(now: Long, userId: Int) {
+            removeOldEvents(now)
+
+            eventQueue.add(now to userId)
+            val newCount = userEventCounts.getOrDefault(userId, 0) + 1
+            userEventCounts[userId] = newCount
+
+            if (newCount == 1000) {
+                robotCount++
+            }
+        }
+        fun getRobotCount(now: Long): Int {
+            removeOldEvents(now)
+            return robotCount
+        }
+
+        private fun removeOldEvents(now: Long) {
+            val threshold = now - 300
+            while (eventQueue.isNotEmpty() && eventQueue.peek().first < threshold) {
+                val (time, userId) = eventQueue.poll()
+                val oldCount = userEventCounts[userId] ?: 0
+
+                if (oldCount > 0) {
+                    val newCount = oldCount - 1
+                    userEventCounts[userId] = newCount
+
+                    if (oldCount == 1000) {
+                        robotCount--
+                    }
+
+                    if (newCount == 0) {
+                        userEventCounts.remove(userId)
+                    }
+                }
+            }
+        }
+    }
+
+
+    //найти два одинаковых поддерева (ну типа знаем)
+
+    //вертикальная ось симметрии
+    class Point(val x: Int, val y: Int)
+
+    fun findVerticalAxisOfSymmetry(points: List<Point>): List<Point> {
+        if (points.isEmpty()) return emptyList()
+
+        var minX = points[0].x
+        var maxX = points[0].x
+        for (point in points) {
+            if (point.x < minX) minX = point.x
+            if (point.x > maxX) maxX = point.x
+        }
+
+        val total = minX + maxX
+        if (total % 2 != 0) return emptyList()
+        val axisX = total / 2
+
+        val freqMap = mutableMapOf<Pair<Int, Int>, Int>()
+        for (point in points) {
+            val key = point.x to point.y
+            freqMap[key] = freqMap.getOrDefault(key, 0) + 1
+        }
+
+        for ((key, count) in freqMap) {
+            val (x, y) = key
+
+            if (x == axisX) continue
+
+            val symX = 2 * axisX - x
+            val symCount = freqMap.getOrDefault(symX to y, 0)
+
+            if (count != symCount) return emptyList()
+        }
+
+        return listOf(Point(axisX, 0), Point(axisX, 1))
+    }
+
+
+
+    //1) дан массив чисел (инты), нужно вывести минимальное произведение двух из них
+    //числа же могут быть отрицательными
+    fun minProduct(nums: List<Int>): Int {
+        var min1 = Int.MAX_VALUE
+        var min2 = Int.MAX_VALUE
+        var max1 = Int.MIN_VALUE
+        var max2 = Int.MIN_VALUE
+
+        for (num in nums) {
+            if (num < min1) {
+                min2 = min1
+                min1 = num
+            } else if (num < min2) {
+                min2 = num
+            }
+            if (num > max1) {
+                max2 = max1
+                max1 = num
+            } else if (num > max2) {
+                max2 = num
+            }
+        }
+
+        return minOf(
+            min1.toLong() * min2.toLong(), 
+            max1.toLong() * max2.toLong(), 
+            min1.toLong() * max1.toLong())
+            .toInt()
+    }
+    
+
+    /*
+     * 2) дано 2 массива, нужно вывести массив такого же размера, где i-ый элемент - эти количество повторений до него. Дубликаты не считаются
+     *
+     * Пример
+     * Ввод:
+     * 1 2 3 4 5 6 7
+     * 3 4 2 1 1 5 7
+     * Вывод:
+     * 0 0 2 4 4 5 6
+     *
+     * Объяснение:
+     *
+     * первый «0», тк 1 не равно 3
+     *
+     * второй «0», тк до этого во втором массиве не было «2» и в первом не было «4»
+     *
+     * «2», потому что во 2 массиве была «3» и в первом массиве была «2»
+     *
+     * «4», потому что к предыдущей двойки в массиве ответов прибавили ещё 2 (тк «4» есть во втором массиве и «1» есть в первом)
+     *
+     * «4» снова, потому что «1» уже посчитали, а «5» не было
+     *
+     * «5» - встретили 5 во 2 массиве, то есть прибавляем 1 к 4
+     *
+     * «6» - прибавляем ещё 1, тк у нас родниковые вхождения
+     */
+
+    fun countRepeats(nums1: List<Int>, nums2: List<Int>): List<Int> {
+        val set1 = mutableSetOf<Int>()
+        val set2 = mutableSetOf<Int>()
+        var commonCount = 0
+        val result = mutableListOf<Int>()
+        for (i in nums1.indices) {
+            val num1 = nums1[i]
+            val num2 = nums2[i]
+
+            if (num1 !in set1) {
+                set1.add(num1)
+                if (num1 in set2) {
+                    commonCount++
+                }
+            }
+
+            if (num2 !in set2) {
+                set2.add(num2)
+                if (num2 in set1) {
+                    commonCount++
+                }
+            }
+
+            result.add(commonCount)
+        }
+
+        return result
+    }
 
 #### 22. Generate Parentheses
 https://leetcode.com/problems/generate-parentheses/   MEDIUM
