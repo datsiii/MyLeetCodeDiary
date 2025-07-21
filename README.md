@@ -1636,6 +1636,7 @@ class Solution {
 ```
 
 ## КАКИЕ-ТО ЗАДАЧКИ С ТРЕНЕРОВОК
+```
 //является ли первая строка подпоследовательностью второй строки
     fun fuzzySearch(input: String, text: String) : Boolean {
         var j = 0
@@ -1869,7 +1870,7 @@ class Solution {
 
         return result
     }
-
+```
 #### 22. Generate Parentheses
 https://leetcode.com/problems/generate-parentheses/   MEDIUM
 
